@@ -1,6 +1,6 @@
 {
   "name": "@biesbjerg/ngx-translate-extract",
-  "version": "7.0.2",
+  "version": "7.0.3",
   "description": "Extract strings from projects using ngx-translate",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -12,6 +12,7 @@
     "ngx-translate-extract": "bin/cli.js"
   },
   "scripts": {
+    "prepare": "npm run build",
     "build": "npm run clean && tsc",
     "watch": "npm run clean && tsc --watch",
     "clean": "rimraf ./dist",
