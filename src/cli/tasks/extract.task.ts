@@ -42,46 +42,39 @@ export class ExtractTask implements TaskInterface {
 		const extracted = this.extract();
 		this.out(green(`\nFound %d strings.\n`), extracted.count());
 
-		this.out(bold('Saving:'));
-
-		this.outputs.forEach((output) => {
-			let dir: string = output;
-			let filename: string = `strings.${this.compiler.extension}`;
-			if (!fs.existsSync(output) || !fs.statSync(output).isDirectory()) {
-				dir = path.dirname(output);
-				filename = path.basename(output);
-			}
-
-			const outputPath: string = path.join(dir, filename);
-
-			let existing: TranslationCollection = new TranslationCollection();
-			if (!this.options.replace && fs.existsSync(outputPath)) {
-				try {
-					existing = this.compiler.parse(fs.readFileSync(outputPath, 'utf-8'));
-				} catch (e) {
-					this.out(`%s %s`, dim(`- ${outputPath}`), red(`[ERROR]`));
-					throw e;
-				}
-			}
-
-			// merge extracted strings with existing
-			const draft = extracted.union(existing);
-
-			// Run collection through post processors
-			const final = this.process(draft, extracted, existing);
-
-			// Save
-			try {
-				let event = 'CREATED';
-				if (fs.existsSync(outputPath)) {
-					this.options.replace ? (event = 'REPLACED') : (event = 'MERGED');
-				}
-				this.save(outputPath, final);
-				this.out(`%s %s`, dim(`- ${outputPath}`), green(`[${event}]`));
-			} catch (e) {
-				this.out(`%s %s`, dim(`- ${outputPath}`), red(`[ERROR]`));
-				throw e;
-			}
+        this.out(bold('Saving:'));
+        
+        this.outputs.forEach((pattern) => {
+			this.getFiles(pattern).forEach((outputPath) => {
+                let existing: TranslationCollection = new TranslationCollection();
+                if (!this.options.replace && fs.existsSync(outputPath)) {
+                    try {
+                        existing = this.compiler.parse(fs.readFileSync(outputPath, 'utf-8'));
+                    } catch (e) {
+                        this.out(`%s %s`, dim(`- ${outputPath}`), red(`[ERROR]`));
+                        throw e;
+                    }
+                }
+    
+                // merge extracted strings with existing
+                const draft = extracted.union(existing);
+    
+                // Run collection through post processors
+                const final = this.process(draft, extracted, existing);
+    
+                // Save
+                try {
+                    let event = 'CREATED';
+                    if (fs.existsSync(outputPath)) {
+                        this.options.replace ? (event = 'REPLACED') : (event = 'MERGED');
+                    }
+                    this.save(outputPath, final);
+                    this.out(`%s %s`, dim(`- ${outputPath}`), green(`[${event}]`));
+                } catch (e) {
+                    this.out(`%s %s`, dim(`- ${outputPath}`), red(`[ERROR]`));
+                    throw e;
+                }
+			});
 		});
 	}
 
