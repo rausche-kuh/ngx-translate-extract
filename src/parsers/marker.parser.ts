@@ -8,10 +8,14 @@ const MARKER_MODULE_NAME = '@biesbjerg/ngx-translate-extract-marker';
 const MARKER_IMPORT_NAME = 'marker';
 
 export class MarkerParser implements ParserInterface {
+	marker: string;
+	constructor(marker?: string) {
+		this.marker = marker;
+	}
 	public extract(source: string, filePath: string): TranslationCollection | null {
 		const sourceFile = tsquery.ast(source, filePath);
 
-		const markerImportName = getNamedImportAlias(sourceFile, MARKER_MODULE_NAME, MARKER_IMPORT_NAME);
+		const markerImportName = getNamedImportAlias(sourceFile, MARKER_MODULE_NAME, MARKER_IMPORT_NAME) || this.marker;
 		if (!markerImportName) {
 			return null;
 		}

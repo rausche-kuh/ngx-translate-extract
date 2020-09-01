@@ -61,4 +61,37 @@ describe('MarkerParser', () => {
 		const keys = parser.extract(contents, componentFilename).keys();
 		expect(keys).to.deep.equal(['DYNAMIC_TRAD.val1', 'DYNAMIC_TRAD.val2']);
 	});
+
+	it('should prefer imported marker', () => {
+		parser = new MarkerParser('_');
+		const contents = `
+		import { marker } from '@biesbjerg/ngx-translate-extract-marker';
+		import { _ } from 'other-package';
+
+		export class AppModule {
+			constructor() {
+				marker('DYNAMIC_TRAD.val1');
+				_('DYNAMIC_TRAD.val2');
+			}
+		}
+		`;
+		const keys = parser.extract(contents, componentFilename).keys();
+		expect(keys).to.deep.equal(['DYNAMIC_TRAD.val1']);
+	});
+
+	it('should extract the strings with cli marker', () => {
+		parser = new MarkerParser('_');
+		const contents = `
+		import { _ } from 'other-package';
+
+		export class AppModule {
+			constructor() {
+				_('DYNAMIC_TRAD.val1');
+				_('DYNAMIC_TRAD.val2');
+			}
+		}
+		`;
+		const keys = parser.extract(contents, componentFilename).keys();
+		expect(keys).to.deep.equal(['DYNAMIC_TRAD.val1', 'DYNAMIC_TRAD.val2']);
+	});
 });

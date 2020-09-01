@@ -86,6 +86,11 @@ export const cli = y
 		describe: 'Remove obsolete strings after merge',
 		type: 'boolean'
 	})
+	.option('marker', {
+		alias: 'm',
+		describe: 'Set fixed marker',
+		type: 'string'
+	})
 	.option('key-as-default-value', {
 		alias: 'k',
 		describe: 'Use key as default value',
@@ -122,7 +127,7 @@ const extractTask = new ExtractTask(cli.input, cli.output, {
 });
 
 // Parsers
-const parsers: ParserInterface[] = [new PipeParser(), new DirectiveParser(), new ServiceParser(), new MarkerParser()];
+const parsers: ParserInterface[] = [new PipeParser(), new DirectiveParser(), new ServiceParser(), new MarkerParser(cli.marker)];
 extractTask.setParsers(parsers);
 
 // Post processors
